@@ -24,6 +24,7 @@ import scala.tools.nsc.Settings
 import scala.tools.nsc.reporters.StoreReporter
 import scala.meta.pc.PresentationCompilerConfig
 import java.util.concurrent.CompletableFuture
+import org.eclipse.lsp4j.Location
 import scala.meta.pc.DefinitionResult
 import scala.collection.Seq
 
@@ -109,6 +110,17 @@ case class ScalaPresentationCompiler(
     ) { global =>
       new SignatureHelpProvider(global).signatureHelp(params)
     }
+
+  override def typeDefinition(
+      params: OffsetParams
+  ): CompletableFuture[java.util.List[Location]] = {
+    access.withNonInterruptableCompiler(
+      List[Location]().asJava,
+      params.token
+    ) { global =>
+      new TypeDefinitionProvider(global, params).typeDefinition.asJava
+    }
+  }
 
   override def hover(
       params: OffsetParams
